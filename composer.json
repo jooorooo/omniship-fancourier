@@ -1,0 +1,26 @@
+{
+    "name": "simexis/omniship-fancourier",
+
+    "description": "PHP library to communicate with the fancourier.",
+
+    "require": {
+      "php": "^7",
+      "simexis/omniship": "dev-master",
+        "infifni/fan-courier-api-client": "^1.0"
+    },
+
+    "license": "LGPL-2.1",
+
+    "autoload": {
+      "psr-4": {
+        "Omniship\\Fancourier\\": "src"
+      }
+    },
+
+	"authors": [
+        {
+            "name": "Stoyan Stoimenov",
+            "email": "s.stoimenovbg@gmail.com"
+        }
+    ]
+}
