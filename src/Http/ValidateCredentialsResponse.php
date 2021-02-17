@@ -19,6 +19,7 @@ class ValidateCredentialsResponse extends AbstractResponse
         if(count($this->data) == 0) {
             return false;
         }
+
         return (bool)$this->data;
     }
 

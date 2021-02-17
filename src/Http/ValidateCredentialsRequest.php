@@ -16,7 +16,6 @@ class ValidateCredentialsRequest extends AbstractRequest
 
     public function getData()
     {
-
     }
 
     public function sendData($data)

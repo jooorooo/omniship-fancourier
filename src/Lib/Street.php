@@ -60,4 +60,12 @@ class Street extends BaseStreet
         return $this->setParameter('city', $value);
     }
 
+    public function setType($value){
+        return $this->setParameter('type', $value);
+    }
+
+    public function getType(){
+        return $this->getParameter('type');
+    }
+
 }

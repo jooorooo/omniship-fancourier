@@ -24,33 +24,39 @@ class CreateBillOfLadingRequest extends AbstractRequest
             $envelope = $this->getNumberOfPieces();
             $package = 0;
         }
-
+        $this->getNumberOfPieces();
         $sender_address = $this->getSenderAddress();
         $receiver_adress = $this->getReceiverAddress();
+        $declared_amount = '';
+        $declared_side = '';
+        $check_at_delivery = $this->getParameter('check_at_delivery') ? 'A' : '';
+        $saturday_delivery = $this->getOtherParameters('saturday_delivery') ? 'S' : '';
+        $epod = $this->getOtherParameters('epod') ? 'X' : '';
+        $tooffice = $receiver_adress->getOffice() ? 'D' : '';
         return [
-            'tip_serviciu' =>$this->getServiceId(),
+            'tip_serviciu' => $this->getServiceId(), // required
             'banca' => '',
             'iban' =>  '',
-            'nr_plicuri' =>  $envelope,
-            'nr_colete' => $package,
-            'greutate' => $this->getWeight(),
-            'plata_expeditie' => 'ramburs',
-            'ramburs_bani' => 100,
-            'plata_ramburs_la' => GenerateAwb::RECIPIENT_ALLOWED_VALUE,
-            'valoare_declarata' => $this->getDeclaredAmount(),
+            'nr_plicuri' =>  $envelope, // required
+            'nr_colete' => $package, // required
+            'greutate' => $this->getWeight(), // required
+            'plata_expeditie' => $this->getPayer(), // required
+            'ramburs_bani' => $this->getDeclaredAmount(), // required
+            'plata_ramburs_la' => $this->getPayer(), // required
+            'valoare_declarata' => $this->getCashOnDeliveryAmount(),
             'persoana_contact_expeditor' => $sender_address->getFullName(),
-            'observatii' => $this->getClientNote(),
-            'continut' => '',
-            'nume_destinatar' => 'TEsdas',
-            'persoana_contact' => $receiver_adress->getFullName(),
-            'telefon' => $receiver_adress->getPhone(),
-            'fax' => '31231232',
-            'email' => 'dasdsa@abv.bg',
-            'judet' => $receiver_adress->getLocal()['name'],
-            'localitate' => $receiver_adress->getCity()->getName(),
-            'strada' => $receiver_adress->getStreet()->getName(),
-            'nr' => $receiver_adress->getStreetNumber(),
-            'cod_postal' => $receiver_adress->getPostCode(),
+            'observatii' => $this->getOtherParameters('instructions') ?? '',
+            'continut' => $this->getClientNote() ?? '',
+            'nume_destinatar' =>  $receiver_adress->getFullName(), // required
+            'persoana_contact' => '',
+            'telefon' => $receiver_adress->getPhone(), // required
+            'fax' => '',
+            'email' => '',
+            'judet' => $receiver_adress->getState()->getName(), // required
+            'localitate' => $receiver_adress->getCity()->getName(), // required
+            'strada' => $receiver_adress->getStreet() ? $receiver_adress->getStreet()->getName() : $receiver_adress->getCity()->getName(), // required
+            'nr' => $receiver_adress->getStreetNumber() ?? '', // required
+            'cod_postal' => $receiver_adress->getPostCode(), // required
             'bl' => $receiver_adress->getBuilding() ?? '',
             'scara' => $receiver_adress->getEntrance() ?? '',
             'etaj'  => $receiver_adress->getFloor() ?? '',
@@ -59,7 +65,7 @@ class CreateBillOfLadingRequest extends AbstractRequest
             'lungime_pachet' => '',
             'restituire' => '',
             'centru_cost' => '',
-            'optiuni' => '',
+            'optiuni' => $check_at_delivery.$saturday_delivery.$epod.$tooffice,
             'packing' => '',
             'date_personale' => ''
         ];

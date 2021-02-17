@@ -15,8 +15,7 @@ class ServicesRequest extends AbstractRequest
 
     public function getData()
     {
-
-
+        return '';
     }
 
     public function sendData($data)

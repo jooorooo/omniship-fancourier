@@ -1,6 +1,7 @@
 <?php
 
 namespace Omniship\Fancourier\Http;
+use Doctrine\Common\Collections\ArrayCollection;
 use Infifni\FanCourierApiClient\Client;
 
 class ShippingQuoteRequest extends AbstractRequest
@@ -11,21 +12,21 @@ class ShippingQuoteRequest extends AbstractRequest
 
         if($this->getPackageType() == 'package'){
             $envelope = 0;
-            $package = $this->getNumberOfPieces();
+            $package = count($this->getItems());
         } else {
-            $envelope = $this->getNumberOfPieces();
+            $envelope = count($this->getItems());
             $package = 0;
         }
         return [
-            'serviciu' => $this->getServiceId(),
-            'localitate_dest' => $this->getReceiverAddress()->getCity()->name,
-            'judet_dest' => $this->getReceiverAddress()->getLocal()['name'],
+            'serviciu' =>  $this->getServiceId(),
+            'localitate_dest' => $this->getReceiverAddress()->getCity()->getName(),
+            'judet_dest' => $this->getReceiverAddress()->getState()->getName(),
             'plicuri' => $envelope,
             'colete' => $package,
             'greutate' => $this->getWeight(), // total weight of the shipment
-            'lungime' => $this->getPieces()[0]->getWidth(),
-            'latime' => $this->getPieces()[0]->getDepth(),
-            'inaltime' =>  $this->getPieces()[0]->getHeight(),
+            'lungime' => $this->getItems()->first()->getWidth(),
+            'latime' => $this->getItems()->first()->getDepth(),
+            'inaltime' => $this->getItems()->first()->getHeight(),
             'val_decl' => $this->getDeclaredAmount(),
             'plata_ramburs' => $this->getPayer()
         ];
@@ -33,7 +34,19 @@ class ShippingQuoteRequest extends AbstractRequest
 
     public function sendData($data)
     {
-        $calculate = (new Client($this->getClientId(), $this->getUsername(), $this->getPassword()))->price($data);
+        $calculate = [];
+        foreach ($data['serviciu'] as $s) {
+            try {
+
+                $data['serviciu'] = $s;
+                $calculate[] = [
+                    'name' => $s,
+                    'price' => (new Client($this->getClientId(), $this->getUsername(), $this->getPassword()))->price($data)
+                ];
+            } catch (\Exception $e){
+                continue;
+            }
+        }
         return $this->createResponse($calculate);
     }
 

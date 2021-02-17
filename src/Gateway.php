@@ -15,7 +15,7 @@ class Gateway extends AbstractGateway
 {
 
     private $name = 'Fancourier';
-
+    const TRACKING_URL = 'https://www.fancourier.ro/en/awb-tracking/?awb=%s';
     /**
      * @return stringc
      */
@@ -172,5 +172,19 @@ class Gateway extends AbstractGateway
     public function validateCredentials(array $parameters = [], $test_mode = null)
     {
         return $this->createRequest(ValidateCredentialsRequest::class, $parameters);
+    }
+
+    public function supportsCashOnDelivery()
+    {
+        return true;
+    }
+
+    public function supportsCreateBillOfLading(){
+        return true;
+    }
+
+    public function trackingUrl($parcel_id)
+    {
+        return sprintf(static::TRACKING_URL, $parcel_id);
     }
 }

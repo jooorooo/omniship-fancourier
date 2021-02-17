@@ -15,8 +15,6 @@ class GetPdfResponse extends AbstractResponse
      * @return bool
      */
     public function getData(){
-
-
         if(str_starts_with($this->data, 'Error') == true) {
             return false;
         }

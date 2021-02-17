@@ -27,6 +27,9 @@ class GetPdfRequest extends AbstractRequest
      * @return GetPdfResponse
      */
     public function sendData($data) {
+        if($this->getLanguageCode() != 'ro'){
+            $this->setLanguageCode('en');
+        }
         $GetPDF = (new Client($this->getClientId(), $this->getUsername(), $this->getPassword()))->getAwb([
             'nr' => $data['bol_id'],
             'page' => GetAwb::PAGE_A4_ALLOWED_VALUE,

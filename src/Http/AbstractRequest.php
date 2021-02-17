@@ -23,6 +23,7 @@ abstract class AbstractRequest extends BaseAbstractRequest implements RequestInt
     }
 
     public function getClientId(){
+
         return $this->getParameter('client_id');
     }
 

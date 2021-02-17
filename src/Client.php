@@ -16,6 +16,7 @@ class Client
     protected $password;
     protected $client_id;
     protected $language;
+    protected $error;
 
     public function __construct($username, $password, $client_id, $language)
     {
@@ -44,14 +45,16 @@ class Client
             'county' => 'judet',
             'city' => 'localitate',
             'name' => 'strada',
-            'zipcode' => 'cod_postal'
+            'zipcode' => 'cod_postal',
+            'type' => 'tip'
         ],
         'en' => [
             'street_id' => 'street_id',
             'county' => 'county',
             'city' => 'city',
             'name' => 'street',
-            'zipcode' => 'zip_code'
+            'zipcode' => 'zip_code',
+            'type' => 'type'
 
         ]
     ];
@@ -60,7 +63,6 @@ class Client
     {
         $collection = [];
         $cities =(new ApiClient($this->client_id,$this->username,$this->password))->city([ 'language' => $this->language]);
-
         if (!empty($cities) && !empty($cities)) {
             $collection = array_map(function($city) {
                 return new City([
@@ -70,24 +72,31 @@ class Client
                 ]);
             },$cities);
         }
-        return new Collection($collection[0]);
+        return new Collection($collection);
     }
 
     public function getStreet($state = null, $local = null){
-        $streets = (new ApiClient($this->client_id, $this->username, $this->password))->streets(['judet' => $state, 'localitate' => $local, 'language' => $this->language]);
-        if(!empty($streets)){
-            $collection = array_map(function ($street){
-               return new Street([
-                   'id' => $street[$this->streetFileds[$this->language]['street_id']],
-                   'name' => $street[$this->streetFileds[$this->language]['name']],
-                   'zipcode' => $street[$this->streetFileds[$this->language]['zipcode']],
-                   'county' =>  $street[$this->streetFileds[$this->language]['county']],
-                   'city' =>  $street[$this->streetFileds[$this->language]['city']],
-               ]);
+        $collection = [];
+        $streets = (new ApiClient($this->client_id, $this->username, $this->password))->streets(['judet' => $state, 'localitate' => $local, 'language' =>  $this->language]);
+        $sttee_chunk = array_chunk($streets, 50);
+        if(!empty($streets)) {
+            $collection = array_map(function ($street) {
+                return [
+                    'id' => $street[$this->streetFileds[$this->language]['street_id']],
+                    'name' => $street[$this->streetFileds[$this->language]['name']],
+                    'zipcode' => $street[$this->streetFileds[$this->language]['zipcode']],
+                    'county' => $street[$this->streetFileds[$this->language]['county']],
+                    'city' => $street[$this->streetFileds[$this->language]['city']],
+                    'type' => $street[$this->streetFileds[$this->language]['type']]
+                ];
             }, $streets);
         }
         return new Collection($collection);
     }
 
 
+    public function getError()
+    {
+        return $this->error;
+    }
 }

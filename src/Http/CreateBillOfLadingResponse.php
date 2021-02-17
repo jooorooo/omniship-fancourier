@@ -24,6 +24,7 @@ class CreateBillOfLadingResponse extends AbstractResponse
      */
     public function getData()
     {
+
         $result = new Create();
         $data = $this->data[0] ?? null;
         $client = (new Client($this->getRequest()->getClientId(),$this->getRequest()->getUsername(), $this->getRequest()->getPassword()));
@@ -40,32 +41,9 @@ class CreateBillOfLadingResponse extends AbstractResponse
         $result->setInsurance(0.0);
         $result->setCashOnDelivery(0.0);
         $result->setTotal(!empty($data['cost']) ? $data['cost'] : 0.0);
-        $result->setCurrency('RO');
+        $result->setCurrency('RON');
 
         return $result;
     }
-    /**
-     * Get the formatted Request.
-     *
-     * @return null|string
-     */
-    public function getRequestFormatted()
-    {
-        if($client = $this->getClient()) {
-            return $client->getLastRequest();
-        }
 
-        return null;
-    }
-    /**
-     * {@inheritdoc}
-     */
-    public function getResponseFormatted()
-    {
-        if($client = $this->getClient()) {
-            return $client->getLastResponse();
-        }
-
-        return null;
-    }
 }
