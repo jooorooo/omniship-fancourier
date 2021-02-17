@@ -7,7 +7,6 @@ class TrackingParcelResponse extends AbstractResponse
 {
     public function getData()
     {
-        dd($this);
         $result = new ServiceBag();
         if(!is_null($this->getCode())) {
             return $result;
