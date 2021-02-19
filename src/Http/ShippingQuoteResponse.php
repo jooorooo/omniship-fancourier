@@ -25,7 +25,10 @@ class ShippingQuoteResponse extends AbstractResponse
                         'tax' => null,
                         'insurance' => 0,
                         'exchange_rate' => null,
-                        'payer' => $this->getRequest()->getPayer()
+                        'payer' => $this->getRequest()->getPayer(),
+						'allowance_fixed_time_delivery' => false,
+						'allowance_cash_on_delivery' => true,
+						'allowance_insurance' => true,
                     ]);
                 }
             }
