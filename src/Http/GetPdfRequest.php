@@ -9,6 +9,7 @@ namespace Omniship\Fancourier\Http;
 
 use Infifni\FanCourierApiClient\Client;
 use Infifni\FanCourierApiClient\Request\GetAwb;
+use Omniship\Fancourier\FanClient;
 
 class GetPdfRequest extends AbstractRequest
 {
@@ -30,7 +31,7 @@ class GetPdfRequest extends AbstractRequest
         if($this->getLanguageCode() != 'ro'){
             $this->setLanguageCode('en');
         }
-        $GetPDF = (new Client($this->getClientId(), $this->getUsername(), $this->getPassword()))->getAwb([
+        $GetPDF = (new FanClient($this->getClientId(), $this->getUsername(), $this->getPassword()))->getPdfAwb([
             'nr' => $data['bol_id'],
             'page' => GetAwb::PAGE_A4_ALLOWED_VALUE,
             'ln' => $this->getLanguageCode()
