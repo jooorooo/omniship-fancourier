@@ -33,7 +33,7 @@ class GetPdfRequest extends AbstractRequest
         }
         $GetPDF = (new FanClient($this->getClientId(), $this->getUsername(), $this->getPassword()))->getPdfAwb([
             'nr' => $data['bol_id'],
-            'page' => GetAwb::PAGE_A4_ALLOWED_VALUE,
+            'page' => $this->getPdfSize(),
             'ln' => $this->getLanguageCode()
         ]);
         return $this->createResponse($GetPDF);
@@ -43,7 +43,20 @@ class GetPdfRequest extends AbstractRequest
      * @param $data
      * @return GetPdfResponse
      */
-    protected function createResponse($data){
+    protected function createResponse($data)
+    {
         return $this->response = new GetPdfResponse($this, $data);
+    }
+
+    /**
+     * @return string
+     */
+    protected function getPdfSize()
+    {
+        if(in_array($type = strtoupper($this->getOtherParameters('printer_type')), [GetAwb::PAGE_A4_ALLOWED_VALUE, GetAwb::PAGE_A5_ALLOWED_VALUE, GetAwb::PAGE_A6_ALLOWED_VALUE])) {
+            return $type;
+        }
+
+        return GetAwb::PAGE_A4_ALLOWED_VALUE;
     }
 }
