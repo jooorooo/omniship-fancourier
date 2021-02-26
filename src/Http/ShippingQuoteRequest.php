@@ -9,14 +9,23 @@ class ShippingQuoteRequest extends AbstractRequest
 
     public function getData()
     {
-
         if($this->getPackageType() == 'package'){
             $envelope = 0;
-            $package = count($this->getItems());
+            $package = $this->getNumberOfPieces();
         } else {
-            $envelope = count($this->getItems());
+            $envelope = $this->getNumberOfPieces();
             $package = 0;
         }
+        switch ($this->getPayer()){
+            case 'SENDER': $payer = 'expeditor';break;
+            case 'RECEIVER': $payer = 'destinatar'; break;
+            default: $payer = $this->getPayer();
+        }
+        $options = [];
+        $check_at_delivery = $this->getOtherParameters('check_at_delivery') ? array_push($options, 'A') : $options;
+        $epod = $this->getOtherParameters('epod') ?   array_push($options, 'X') : $options;
+        $to_office = $this->getOtherParameters('to_office') ?  array_push($options, 'D') : $options;
+        $saturday_delivery = $this->getOtherParameters('saturday_delivery') ?  array_push($options, 'S') : $options;
         return [
             'serviciu' =>  $this->getServiceId(),
             'localitate_dest' => $this->getReceiverAddress()->getCity()->getName(),
@@ -27,13 +36,15 @@ class ShippingQuoteRequest extends AbstractRequest
             'lungime' => $this->getItems()->first()->getWidth(),
             'latime' => $this->getItems()->first()->getDepth(),
             'inaltime' => $this->getItems()->first()->getHeight(),
-            'val_decl' => $this->getDeclaredAmount(),
-            'plata_ramburs' => $this->getPayer()
+            'val_decl' =>  $this->getOtherParameters('declarate_value') ? $this->getDeclaredAmount() : '',
+            'plata_ramburs' => $payer,
+            'optiuni' => implode(',', $options)
         ];
     }
 
     public function sendData($data)
     {
+      //  dump($data);
         $calculate = [];
         foreach ($data['serviciu'] as $s) {
             try {
@@ -47,6 +58,7 @@ class ShippingQuoteRequest extends AbstractRequest
                 continue;
             }
         }
+      //  dd($calculate);
         return $this->createResponse($calculate);
     }
 

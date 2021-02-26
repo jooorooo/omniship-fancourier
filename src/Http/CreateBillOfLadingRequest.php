@@ -24,26 +24,29 @@ class CreateBillOfLadingRequest extends AbstractRequest
             $envelope = $this->getNumberOfPieces();
             $package = 0;
         }
-        $this->getNumberOfPieces();
+        $PackageList = [];
+        foreach($this->getItems() as $items){
+            array_push($PackageList, $items->name.'/'.$items->name.'-'.$items->id.'/'.$items->id.'/'.$items->quantity.'/'.$items->price);
+        }
         $sender_address = $this->getSenderAddress();
         $receiver_adress = $this->getReceiverAddress();
-        $declared_amount = '';
-        $declared_side = '';
-        $check_at_delivery = $this->getParameter('check_at_delivery') ? 'A' : '';
-        $saturday_delivery = $this->getOtherParameters('saturday_delivery') ? 'S' : '';
-        $epod = $this->getOtherParameters('epod') ? 'X' : '';
-        $tooffice = $receiver_adress->getOffice() ? 'D' : '';
+        $options = [];
+        $check_at_delivery = $this->getOtherParameters('check_at_delivery') ? array_push($options, 'A') : $options;
+        $packing = $this->getOtherParameters('check_at_delivery') ? $packing_list = implode('|', $PackageList) : '';
+        $epod = $this->getOtherParameters('epod') ?   array_push($options, 'X') : $options;
+        $to_office = $receiver_adress->getOffice()  ?  array_push($options, 'D') : $options;
+        $saturday_delivery = $this->getOtherParameters('saturday_delivery') ?  array_push($options, 'S') : $options;
         return [
-            'tip_serviciu' => $this->getServiceId(), // required
+            'tip_serviciu' => 'Standard', // required
             'banca' => '',
             'iban' =>  '',
             'nr_plicuri' =>  $envelope, // required
             'nr_colete' => $package, // required
             'greutate' => $this->getWeight(), // required
             'plata_expeditie' => $this->getPayer(), // required
-            'ramburs_bani' => $this->getDeclaredAmount(), // required
+            'ramburs_bani' =>  $this->getCashOnDeliveryAmount() ?? 0, // required 1
             'plata_ramburs_la' => $this->getPayer(), // required
-            'valoare_declarata' => $this->getCashOnDeliveryAmount(),
+            'valoare_declarata' => $this->getOtherParameters('declarate_value') ? $this->getDeclaredAmount() : '',
             'persoana_contact_expeditor' => $sender_address->getFullName(),
             'observatii' => $this->getOtherParameters('instructions') ?? '',
             'continut' => $this->getClientNote() ?? '',
@@ -65,8 +68,8 @@ class CreateBillOfLadingRequest extends AbstractRequest
             'lungime_pachet' => '',
             'restituire' => '',
             'centru_cost' => '',
-            'optiuni' => $check_at_delivery.$saturday_delivery.$epod.$tooffice,
-            'packing' => '',
+            'optiuni' => implode('', $options),
+            'packing' => $packing,
             'date_personale' => ''
         ];
     }
