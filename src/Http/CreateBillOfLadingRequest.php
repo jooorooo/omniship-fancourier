@@ -37,7 +37,7 @@ class CreateBillOfLadingRequest extends AbstractRequest
         $to_office = $receiver_adress->getOffice()  ?  array_push($options, 'D') : $options;
         $saturday_delivery = $this->getOtherParameters('saturday_delivery') ?  array_push($options, 'S') : $options;
         return [
-            'tip_serviciu' => 'Standard', // required
+            'tip_serviciu' => $this->getServiceId(), // required
             'banca' => '',
             'iban' =>  '',
             'nr_plicuri' =>  $envelope, // required
